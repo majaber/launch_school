@@ -16,6 +16,6 @@
 # END
 
 given_num = [1, 2, 3, 4, 5]
-new_num = given_num.select {|x| x.odd? }
+new_num = given_num.select { |x| x.odd? }
 
 print new_num
