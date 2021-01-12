@@ -6,10 +6,9 @@ VALID_ABBREV = { 'r' => 'rock',
                  'sp' => 'spock'
                }
 
-# def convert_choice(string)
-#   VALID_ABBREV.each do |k, v|
-#     return v if k.include?(string)
-# end
+def convert_choice(string)
+  VALID_ABBREV.fetch(string)
+end
 
 def prompt(message)
   puts("=> #{message}")
@@ -65,9 +64,9 @@ loop do
 
     if VALID_CHOICES.include?(choice)
       break
-    # elsif VALID_ABBREV[choice]
-    #   convert_choice(choice)
-    #   break
+    elsif VALID_ABBREV[choice]
+      convert_choice(choice)
+      break
     else
       prompt("That's not a valid choice.  Try again.")
     end
