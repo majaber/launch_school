@@ -1,12 +1,10 @@
 #------ Declaring Constants for the game -----
-VALID_CHOICES = %w(rock paper scissors lizard spock)
 VALID_ABBREV = { 'r' => 'rock',
                  'p' => 'paper',
                  'sc' => 'scissors',
                  'l' => 'lizard',
-                 'sp' => 'spock'
-               }
-
+                 'sp' => 'spock' }
+GOAL_SCORE = 5
 WINNING_MOVE = {
   'r' => { full_word: 'rock', beats: %w(l sc) },
   'p' => { full_word: 'paper', beats: %w(r sp) },
@@ -14,9 +12,16 @@ WINNING_MOVE = {
   'sp' => { full_word: 'Spock', beats: %w(sc r) },
   'l' => { full_word: 'lizard', beats: %w(sp p) }
 }
-#----- Methods -----
+#---------- Methods ----------
 def prompt(message)
   puts("=> #{message}")
+end
+
+def print_moves
+  puts <<~PRMP
+  Select your move: r for Rock, p for Paper, sc for scissors
+                    l for Lizard, or sp for Spock
+  PRMP
 end
 
 def win?(first, second)
@@ -33,81 +38,104 @@ def display_results(player1, player2)
   end
 end
 
+def increment_score(x, y)
+  if win?(x, y)
+    score[:player_score] += 1
+    prompt("The Player's score: #{score[:player_score]}")
+    prompt("The Computer's score: #{score[:comp_score]}")
+  elsif win?(y, x)
+    score[:comp_score] += 1
+    prompt("The computer's score: #{score[:comp_score]}.")
+    prompt("Player's score: #{score[:player_score]}")
+  else
+    prompt("Neither has scored a win, try again!")
+  end
+end
+
 def announce_champion(x, y)
   if x == 5
-    prompt("Congrats on #{x} wins!")
-    prompt("Congratulations, You are the Grand Champion! Goodbye!")
+    prompt("-------------------------------------------------------------")
+    prompt("You've reached #{x} wins!")
+    prompt("Congratulations, You are the Grand Champion!")
+    prompt("-------------------------------------------------------------")
   elsif y == 5
+    prompt("-------------------------------------------------------------")
     prompt("The Computer has reached #{y} wins and is the Grand Champion!")
-    prompt("Better luck next time, Goodbye!")
+    prompt("Better luck next time!")
+    prompt("-------------------------------------------------------------")
   else
     prompt("Thank you for playing. Goodbye!")
   end
 end
 
-#----- Scoring Variables -----
-player_score = 0
-comp_score = 0
-
-#----- Game Start -----
-prompt("Welcome to Rock(r), Paper(p), Scissors(sc), Lizard(l), Spock(sp)!")
-prompt("----------")
-prompt("The first to 5 wins is granted the title of Grand Champion!")
-prompt("----------")
-loop do
-  choice = ''
+def another_round?
   loop do
-    prompt("Player's score: #{player_score} | Computer's score: #{comp_score}")
-    prompt("Choose one: #{VALID_CHOICES.join(', ')}")
-    choice = gets.chomp.downcase
-
-    if WINNING_MOVE.include?(choice)
-      break
+    puts "Would you like to play again?(y/n) "
+    rematch = gets.chomp.downcase.strip
+    case rematch
+    when 'yes', 'y'
+      break true
+    when 'no', 'n'
+      break false
     else
-      prompt("That's not a valid choice.  Try again.")
+      puts "Invalid answer. Please type Y or N"
     end
   end
-
-  system("clear")
-
-  computer_choice = ['r', 'p', 'sc', 'l', 'sp'].sample
-
-  prompt("You chose: #{choice}; Computer chose: #{computer_choice}")
-
-  display_results(choice, computer_choice)
-
-  if win?(choice, computer_choice)
-    player_score += 1
-    prompt("The Player's score: #{player_score}")
-    prompt("The Computer's score: #{comp_score}")
-    break if player_score >= 5
-  elsif win?(computer_choice, choice)
-    comp_score += 1
-    prompt("The computer's score: #{comp_score}.")
-    prompt("Player's score: #{player_score}")
-    break if comp_score >= 5
-  else
-    prompt("Neither has scored a win, try again!")
-  end
-
-#----- Play again? -----
-  answer = ''
-  loop do
-      prompt("Do you want to play again? (y/n)")
-      answer = gets.chomp.downcase
-
-      if answer == 'y' || answer == 'yes'
-        break
-      elsif answer == 'n' || answer == 'no'
-        break
-      else
-        prompt("Invalid input!")
-      end
-  end
-
-  system("clear")
-
-  break unless answer.downcase.start_with?('y')
 end
 
-announce_champion(player_score, comp_score)
+def grand_champion?(score)
+  score[:player] == GOAL_SCORE || score[:comp] == GOAL_SCORE
+end
+
+#---------- Game Start ----------
+score = { player_score: 0, comp_score: 0 }
+
+prompt("Welcome to Rock(r), Paper(p), Scissors(sc), Lizard(l), Spock(sp)!")
+prompt("----------------------------------------------------------------")
+prompt("The first to 5 wins is granted the title of Grand Champion!")
+
+loop do
+  loop do
+    choice = ''
+    loop do
+      prompt("----------------------------------------------------------------")
+
+      print_moves
+
+      choice = gets.chomp.downcase
+
+      if WINNING_MOVE.include?(choice)
+        break
+      else
+        prompt("That's not a valid choice. Try again.")
+      end
+    end
+
+    system("clear")
+
+    computer_choice = VALID_ABBREV.keys.sample
+
+    prompt("You chose: #{WINNING_MOVE[choice][:full_word]}")
+    prompt("Computer chose: #{WINNING_MOVE[computer_choice][:full_word]}")
+
+    display_results(choice, computer_choice)
+    prompt("----------------------------------------------------------------")
+
+    increment_score(choice, computer_choice)
+    break if score[:comp_score] >= 5 || score[:player_score]
+
+    break if grand_champion?(score)
+  end
+
+  announce_champion(score[:player_score], score[:comp_score])
+
+  #---------- Another round? ----------
+  if another_round?
+    score[:player_score] = 0
+    score[:comp_score] = 0
+    system("clear")
+  else
+    prompt("Thank you for playing, Goodbye!")
+    break
+  end
+end

@@ -1,20 +1,20 @@
-VALID_CHOICES = %w(rock paper scissors lizard spock)
+
+ABBREVIATION = %w(r p sc l sp)
+WIN_CON = {
+  'rock' => ["scissors", "lizard"],
+  'paper' => ['rock', 'spock'],
+  'scissors' => ['paper', 'lizard'],
+  'lizard' => ['spock', 'paper'],
+  'spock' => ['scissors', 'rock']
+}
+VALID_CHOICES = WIN_CON.keys
 
 def prompt(message)
   puts("=> #{message}")
 end
 
 def win?(first, second)
-  (first == 'rock' && second == 'scissors') ||
-    (first == 'paper' && second == 'rock') ||
-    (first == 'scissors' && second == 'paper') ||
-    (first == 'rock' && second == 'lizard') ||
-    (first == 'lizard' && second == 'spock') ||
-    (first == 'spock' && second == 'scissors') ||
-    (first == 'scissors' && second == 'lizard') ||
-    (first == 'lizard' && second == 'paper') ||
-    (first == 'paper' && second == 'spock') ||
-    (first == 'spock' && second == 'rock')
+  WIN_CON[first].include?(second)
 end
 
 def display_results(player, computer)
@@ -32,7 +32,7 @@ user_score = 0
 computer_score = 0
 
 # the start of our game and main loop
-prompt("Welcome to Rock(r), Paper(p), Scissors(x), Lizard(l), Spock(s)!")
+prompt("Welcome to Rock(r), Paper(p), Scissors(sc), Lizard(l), Spock(sp)!")
 prompt("-----------")
 prompt("The first to 5 wins will be crowned the Grand Winner!")
 prompt("-----------")
@@ -40,55 +40,62 @@ prompt("-----------")
 loop do
   choice = ''
   loop do
+    prompt("Player: #{user_score} wins | Computer : #{computer_score} wins")
     prompt("Choose one: #{VALID_CHOICES.join(', ')}")
-    choice = gets.chomp
+    choice = gets.chomp.downcase
 
-    # abbreviations of our keywords to allow for better user experience
-    if choice == 'r'
-      choice = 'rock'
-    elsif choice == 'p'
-      choice = 'paper'
-    elsif choice == 'x'
-      choice = 'scissors'
-    elsif choice == 'l'
-      choice = 'lizard'
-    elsif choice == 's'
-      choice = 'spock'
-    else
-      prompt("That's not a valid choice.")
-    end
-
-    # verifying user input
     if VALID_CHOICES.include?(choice)
       break
     else
-      prompt("That's not a valid choice.")
+      prompt("That is invalid!")
     end
-  end
 
   computer_choice = ['rock', 'paper', 'scissors', 'lizard', 'spock'].sample
+
+  system("clear")
 
   puts("You chose: #{choice}; Computer chose: #{computer_choice}")
 
   display_results(choice, computer_choice)
 
   # scoring logic
-    if win?(choice, computer_choice)
-      user_score += 1
-      prompt("Player's score #{user_score}!")
-    elsif win?(computer_choice, choice)
-      computer_score += 1
-      prompt("The computer's score is #{computer_score}.")
+  if win?(choice, computer_choice)
+    user_score += 1
+    prompt("The Player's score: #{user_score}")
+    prompt("The Computer's score: #{computer_score}")
+  elsif win?(computer_choice, choice)
+    computer_score += 1
+    prompt("The computer's score: #{computer_score}.")
+    prompt("Player's score: #{user_score}")
+  else
+    prompt("Neither has scored a win, try again!")
+  end
+
+  break if user_score >= 5 || computer_score >= 5
+
+  answer = ''
+  loop do
+    prompt("Do you want to play again? (y/n)")
+    answer = gets.chomp.downcase
+
+    if answer == 'y'
+      break
+    elsif answer == 'n'
+      break
     else
-      prompt("Neither has scored a win, try again!")
+      prompt("Invalid input!")
     end
+  end
 
-    break if user_score >= 5 || computer_score >=5
+  system("clear")
 
-    prompt("Do you want to play again?")
-    answer = gets.chomp
-
-    break unless answer.downcase.start_with?('y')
+  break unless answer.downcase.start_with?('y')
 end
-
-prompt("Thank you for playing. Goodbye!")
+#
+# if user_score == 5
+#   prompt("Congratulations, You are the Grand Champion! Goodbye!")
+# elsif computer_score == 5
+#   prompt("The Computer is the Grand Champion! Better luck next time, Goodbye!")
+# else
+#   prompt("Thank you for playing. Goodbye!")
+# end
