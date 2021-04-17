@@ -1,0 +1,7 @@
+welcome: "Welcome to Loan Calculator Plus!"
+repeat: "Would you like to run another calculation? (Y/N)"
+duration: "How many months is your loan?"
+amount: "What is your loan amount?"
+invalid: "That is an invalid input, please try again!"
+apr: "What is your Annual Percentage Rate (APR)?"
+goodbye: "Thank you for using our calculator! Good bye!"
