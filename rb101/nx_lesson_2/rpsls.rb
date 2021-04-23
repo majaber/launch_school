@@ -1,25 +1,29 @@
 # Rock Paper Scissors Lizard Spock
 
 # Constants
-VALID_CHOICES = %w(r p x l s)
-WIN_HASH = { r: ['x', 'l'],
-             p: ['r', 's'],
-             x: ['p', 'l'],
-             l: ['s', 'p'],
-             s: ['x', 'r'] }
-# Methods
+VALID_CHOICES = %w(r p sc l sp)
+WIN_HASH = {
+  'r' => { full_word: 'Rock', defeats: %w(l sc) },
+  'p' => { full_word: 'Paper', defeats: %w(r sp) },
+  'sc' => { full_word: 'Scissors', defeats: %w(p l) },
+  'l' => { full_word: 'Lizard', defeats: %w(sp p) },
+  'sp' => { full_word: 'Spock', defeats: %w(sc r) }
+}
+GOAL = 5
+
+# ----------Methods----------
 def prompt(message)
   puts "=> #{message}"
 end
 
 def win?(first, second)
-  WIN_HASH[first].include?(second)
+  WIN_HASH[first][:defeats].include?(second)
 end
 
 def display_results(player, computer)
-  if win?(player.to_sym, computer)
+  if win?(player, computer)
     prompt("You won!")
-  elsif win?(computer.to_sym, player)
+  elsif win?(computer, player)
     prompt("Computer won!")
   else
     prompt("It's a tie!")
@@ -42,58 +46,70 @@ def announce_champion(x, y)
   end
 end
 
-# Main Game
+# ----------Game Start----------
 welcome_prompt = <<-HRB
 Welcome to Rock, Paper, Scissors, Lizard, Spock!
 The first to 5 wins is deemed the grand champion.
 --------------------------------------------------
 HRB
 choice_prompt = <<-HRB
-Select 'r' for Rock, 'p' for Paper, 'x' for Scissors,
-'l' for Lizard, and 's' for Spock
+Select 'r' for Rock, 'p' for Paper, 'sc' for Scissors,
+'l' for Lizard, and 'sp' for Spock
 --------------------------------------------------
 HRB
 
 player_score = 0
 comp_score = 0
 
+system('clear')
+
 prompt(welcome_prompt)
 loop do
   choice = ''
-
   loop do
-    prompt(choice_prompt)
-    prompt("Current score: player: #{player_score} computer: #{comp_score}")
-    prompt("--------------------------------------------------")
-    choice = gets.chomp.downcase
+    loop do
+      prompt(choice_prompt)
+      prompt("Player wins: #{player_score} Computer wins: #{comp_score}")
+      prompt("--------------------------------------------------")
+      choice = gets.chomp.downcase
 
-    if VALID_CHOICES.include?(choice)
-      break
+      if VALID_CHOICES.include?(choice)
+        break
+      else
+        puts "That's an invalid choice, please try again."
+      end
+    end
+
+    computer_choice = VALID_CHOICES.sample
+
+    system('clear')
+
+    prompt("You chose: #{WIN_HASH[choice][:full_word]}")
+    prompt("The Computer chose: #{WIN_HASH[computer_choice][:full_word]}")
+
+    display_results(choice, computer_choice)
+
+    sleep(0.4)
+
+    if win?(choice, computer_choice)
+      player_score += 1
+      break if player_score >= 5
+    elsif win?(computer_choice, choice)
+      comp_score += 1
+      break if comp_score >= 5
     else
-      puts "That's an invalid choice, please try again."
+      prompt("No one scored a victory.")
     end
   end
 
-  computer_choice = VALID_CHOICES.sample
+  announce_champion(player_score, comp_score)
+  player_score = 0
+  comp_score = 0
 
-  puts("You chose: #{choice.upcase}; Computer chose: #{computer_choice.upcase}")
-
-  display_results(choice, computer_choice)
-
-  if win?(choice.to_sym, computer_choice)
-    player_score += 1
-    break if player_score >= 5
-  elsif win?(computer_choice.to_sym, choice)
-    comp_score += 1
-    break if comp_score >= 5
-  else
-    prompt("No one scored a victory.")
-  end
-
-# Another round?
-  prompt("Would you like to play again?" "(Y/N)")
-  answer = gets.chomp
-  break unless answer.downcase.start_with?('y')
+  prompt("Would you like to play again?(Y/N)")
+  answer = gets.chomp.downcase
+  break unless answer == 'y' || answer == 'yes'
+  system('clear')
 end
 
-announce_champion(player_score, comp_score)
+prompt("Thank you for playing! Good bye!")
