@@ -129,7 +129,6 @@ loop do
 
   break unless play_again?
   system('clear')
-
 end
 
 prompt("Thank you for playing! Good bye!")
