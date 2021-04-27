@@ -10,9 +10,8 @@ WIN_HASH = {
   'sp' => { full_word: 'Spock', defeats: %w(sc r) }
 }
 GOAL = 5
-VALID_PLAY_AGAIN_CHOICE = %w(y yes n no)
 
-# Score Hash
+# ----------Score Hash----------
 score_hash = { player_score: 0, comp_score: 0}
 
 # ----------Methods----------
@@ -34,10 +33,6 @@ def display_results(player, computer)
   end
 end
 
-def increment_score(winner)
-  score_hash[winner] += 1
-end
-
 def announce_champion(x, y)
   if x == 5
     prompt("-------------------------------------------------------------")
@@ -54,8 +49,19 @@ def announce_champion(x, y)
   end
 end
 
-def play_again?(player_choice)
-  VALID_PLAY_AGAIN_CHOICE.include?(player_choice)
+def play_again?
+  loop do
+    prompt("Would you like to play again?(Y/N)")
+    answer = gets.chomp.downcase
+    if answer == 'y'
+      system('clear')
+      return true
+    elsif answer == 'n' || answer == 'no'
+      return false
+    else
+      prompt("Please enter a valid input...")
+    end
+  end
 end
 # ----------Game Start----------
 welcome_prompt = <<-HRB
@@ -124,10 +130,9 @@ loop do
   player_score = 0
   comp_score = 0
 
-  prompt("Would you like to play again?(Y/N)")
-  answer = gets.chomp.downcase
-  break unless answer == 'y' || answer == 'yes'
+  break unless play_again?
   system('clear')
+
 end
 
 prompt("Thank you for playing! Good bye!")
