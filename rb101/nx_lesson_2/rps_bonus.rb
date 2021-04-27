@@ -9,10 +9,6 @@ WIN_HASH = {
   'l' => { full_word: 'Lizard', defeats: %w(sp p) },
   'sp' => { full_word: 'Spock', defeats: %w(sc r) }
 }
-GOAL = 5
-
-# ----------Score Hash----------
-score_hash = { player_score: 0, comp_score: 0}
 
 # ----------Methods----------
 def prompt(message)
@@ -63,6 +59,7 @@ def play_again?
     end
   end
 end
+
 # ----------Game Start----------
 welcome_prompt = <<-HRB
 Welcome to Rock, Paper, Scissors, Lizard, Spock!
